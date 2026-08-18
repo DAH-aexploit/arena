@@ -1,0 +1,9 @@
+FROM python:3.12-slim
+RUN pip install --no-cache-dir flask
+COPY helper_app.py /app.py
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+ENV PORT=8080 FLAG_PATH=/flag FLAG_ENVS=LAYER2_CHALL1_FLAG
+EXPOSE 8080
+ENTRYPOINT ["/entrypoint.sh"]
+CMD ["python", "/app.py"]

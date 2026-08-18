@@ -1,0 +1,20 @@
+# 생성물 (tools/gen_compose.py 가 만든다 — LLM 키가 박히므로 커밋 금지)
+docker-compose.yml
+
+# 로컬 설정·시크릿
+.env
+data/
+data-export/
+
+# 파이썬
+__pycache__/
+*.pyc
+
+# 런타임 산출물
+captures/
+artifacts/
+*.pcap
+*.pcap.gz
+
+# OS
+.DS_Store

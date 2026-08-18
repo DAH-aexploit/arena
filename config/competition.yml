@@ -1,0 +1,116 @@
+# DAH Arena — 대회 정의
+#
+# 리허설(2026-08-15) 진행 방식을 기준으로 한다.
+#   - Phase 가 올라갈수록 활성 레이어가 늘어난다
+#   - 라운드는 자동 진행되고, 참가자는 시작·정지에 개입하지 않는다
+#   - 이미지는 라운드 사이 pull 시점에만 반영된다
+#
+# 로컬에서 빠르게 돌리려면 round_seconds/break_seconds 를 줄인다.
+# (.env 의 ROUND_SECONDS / BREAK_SECONDS 가 이 값을 덮어쓴다)
+
+competition:
+  id: a0000000-0000-4000-8000-000000000001
+  name: DAH 2026 리허설 (로컬 재현)
+  subtitle: Dry-Run · 인프라와 진행 방식 확인용
+  timezone: Asia/Seoul
+
+schedule:
+  round_seconds: 1200        # 리허설 실측: 라운드 20분
+  break_seconds: 1200        # 리허설 실측: 브레이크 20분 (본선 10분)
+  pull_lead_seconds: 300     # 라운드 시작 N초 전 = 이미지 pull 시점
+  autostart: true            # 기동 후 자동 진행
+  phases:
+    - name: Phase 1
+      rounds: 6
+      layers: [1]
+    - name: Phase 2
+      rounds: 6
+      layers: [1, 2]
+    - name: Phase 3
+      rounds: 4
+      layers: [1, 2, 3]
+
+layers:
+  - n: 1
+    entry_port: 8082
+    service: layer-1
+    title: URL Fetcher
+  - n: 2
+    entry_port: 8083
+    service: layer-2
+    title: Admin Portal
+  - n: 3
+    entry_port: 8084
+    service: layer-3
+    title: Shop
+
+# ── 테스트베드 팀 구성(head-to-head) ──────────────────────────
+# 각 팀의 defender/attacker 는 역할 이름이며 agent_sources 로 실제 코드가 정해진다.
+#   defender: mine        내 방어 에이전트(../defense-agent)
+#             passthrough  무방비 기준선(ACCEPT-all)
+#   attacker: mate        팀원 공격 에이전트(../attack-agent)
+#             bot          내장 결정적 봇 공격
+#
+# 공격은 자기 팀의 모든 상대를 향한다. 이 배치가 만드는 매치업:
+#   team9(mate 공격) → team1(무방비): 팀원 공격의 순수 익스플로잇 능력
+#   team9(mate 공격) → team2(내 방어 미러): 팀원 공격이 내 방어를 뚫는지
+#   team1·team2(봇 공격) → team9(내 방어): 내 방어가 공격을 막는지
+teams:
+  - id: 9
+    name: me
+    role_label: 내 방어 + 팀원 공격
+    account: team9-dry
+    participant: true
+    subnet_octet: 9
+    defender: mine
+    attacker: mate
+  - id: 1
+    name: spar-open
+    role_label: 무방비 스파링(팀원 공격 표적)
+    account: team1-dry
+    participant: false
+    subnet_octet: 1
+    defender: passthrough
+    attacker: bot
+  - id: 2
+    name: spar-mirror
+    role_label: 내 방어 미러(팀원 공격 표적)
+    account: team2-dry
+    participant: false
+    subnet_octet: 2
+    defender: mine
+    attacker: bot
+
+# 역할 → 빌드 컨텍스트. 환경변수 AGENT_SRC_<ROLE> 가 우선한다.
+#   내 방어 위치를 옮기면: AGENT_SRC_MINE=... 또는 아래 mine 값 수정
+#   팀원 공격 위치 지정:   AGENT_SRC_MATE=... 또는 아래 mate 값 수정
+agent_sources:
+  mine: ../defense-agent
+  mate: ../attack-agent
+  passthrough: agents/passthrough-defender
+  bot: agents/bot-attacker
+
+registry:
+  # mode: local  = 로컬 registry 컨테이너(혼자·단일 PC). 아래 host/api 사용.
+  #       remote = 원격 레지스트리(GHCR 등). 팀 협업·다른 PC. remote 주소 사용.
+  # .env 의 REGISTRY_MODE 가 이 값을 덮어쓴다.
+  mode: local
+  remote: ghcr.io/dah-aexploit   # remote 모드에서 team9-defender 형태로 push/pull
+  # ── local 모드 전용 ──
+  # 이미지 참조는 호스트 도커 데몬이 해석하므로 localhost:5001(도커가 localhost
+  # 레지스트리를 자동 insecure 처리). api 는 오케스트레이터 컨테이너 내부 조회용.
+  host: localhost:5001           # compose 이미지 참조 · docker pull 대상
+  api: registry:5000             # 오케스트레이터 컨테이너의 manifest 조회용(내부망)
+  external_host: localhost:5001  # 참가자가 push 할 때 쓰는 주소
+  # 대회 실행 노드의 아키텍처. push 한 이미지가 다르면 반영되지 않는다.
+  # (2026-08-15 리허설에서 arm64 이미지가 4라운드 연속 미반영된 사고를 그대로 재현)
+  node_platform: linux/amd64
+  enforce_platform: true
+
+llm:
+  budget_usd: 20.0
+  base_url: http://litellm-gw:4000
+
+sla:
+  checks_per_round: 100          # 라운드당 전체 서비스 합계 100회
+  timeout_seconds: 5

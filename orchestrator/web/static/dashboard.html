@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DAH Arena — 참가자 페이지</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand" id="compName">DAH Arena<span id="compSub"></span></div>
+  <span class="badge off" id="stateBadge">—</span>
+  <div class="spacer"></div>
+  <span class="badge" id="teamBadge">—</span>
+  <a href="#" id="logout" style="font-size:12.5px">로그아웃</a>
+</div>
+
+<div class="wrap">
+
+  <div class="grid g-hero">
+    <div class="card">
+      <div class="phase-line">
+        <span class="p" id="phaseLabel">—</span>
+        <span class="g" id="globalRound"></span>
+      </div>
+      <div class="timer"><span id="remain">--:--</span> <small id="timerNote"></small></div>
+      <div class="bar"><i id="barFill"></i></div>
+      <div class="meta">
+        활성 레이어 <b id="activeLayers">—</b> · 제출창 <b id="submitOpen">—</b>
+        · 진행 <b id="roundProgress">—</b>
+      </div>
+    </div>
+
+    <div class="card">
+      <span class="lbl">이미지 반영</span>
+      <div class="stats">
+        <div class="stat">
+          <div class="k">Next pull in</div>
+          <div class="v" id="nextPull">—</div>
+          <div class="s">이 시점 이후에 반영됩니다</div>
+        </div>
+        <div class="stat">
+          <div class="k">실행 노드</div>
+          <div class="v" style="font-size:15px" id="nodePlatform">—</div>
+          <div class="s">이 아키텍처만 실행됩니다</div>
+        </div>
+      </div>
+      <div id="imageWarnings"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <span class="lbl">이번 라운드<span class="r" id="roundTag"></span></span>
+    <div class="stats">
+      <div class="stat">
+        <div class="k">SLA</div><div class="v" id="slaValue">—</div>
+        <div class="s" id="slaSub">—</div>
+      </div>
+      <div class="stat">
+        <div class="k">Flags stolen</div><div class="v" id="stolenValue">—</div>
+        <div class="s" id="stolenSub">피탈취 레이어</div>
+      </div>
+      <div class="stat">
+        <div class="k">Flags captured</div><div class="v ok" id="capturedValue">—</div>
+        <div class="s">이번 라운드 공격 성과</div>
+      </div>
+      <div class="stat">
+        <div class="k">Accept</div><div class="v ok" id="acceptValue">—</div>
+        <div class="s">verdict</div>
+      </div>
+      <div class="stat">
+        <div class="k">Drop</div><div class="v bad" id="dropValue">—</div>
+        <div class="s">verdict</div>
+      </div>
+      <div class="stat">
+        <div class="k">Timeout</div><div class="v warn" id="timeoutValue">—</div>
+        <div class="s">300ms 초과</div>
+      </div>
+      <div class="stat">
+        <div class="k">Defender</div><div class="v" id="agentValue">—</div>
+        <div class="s" id="agentSub">broker 연결</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid g2">
+    <div class="card">
+      <span class="lbl">팀 진입점</span>
+      <div class="tbl-scroll">
+        <table>
+          <thead><tr><th>Layer</th><th>서비스</th><th>내부 도메인</th><th>진입 IP</th><th class="num">포트</th><th>상태</th></tr></thead>
+          <tbody id="entryRows"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <span class="lbl">이미지 배포 상태</span>
+      <div class="tbl-scroll">
+        <table>
+          <thead><tr><th>역할</th><th>마지막 Push</th><th>마지막 Pull</th><th>Platform</th><th>반영</th></tr></thead>
+          <tbody id="imageRows"></tbody>
+        </table>
+      </div>
+      <div id="imageDigests" style="margin-top:10px"></div>
+    </div>
+  </div>
+
+  <div class="grid g2">
+    <div class="card">
+      <span class="lbl">Flags captured<span class="r">우리 공격 에이전트의 제출 성공</span></span>
+      <div class="tbl-scroll">
+        <table>
+          <thead><tr><th>시각</th><th>대상 팀</th><th>Layer</th><th>Round</th><th>결과</th></tr></thead>
+          <tbody id="captureRows"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <span class="lbl">Flags stolen by round<span class="r">레이어별 이진 지표</span></span>
+      <div class="tbl-scroll">
+        <table>
+          <thead><tr><th>라운드</th><th class="num">stolen</th><th>피탈취 레이어</th><th class="num">SLA</th><th class="num">drop</th><th class="num">점수</th></tr></thead>
+          <tbody id="roundRows"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <span class="lbl">스코어보드</span>
+    <div class="tbl-scroll">
+      <table>
+        <thead><tr><th class="num">#</th><th>팀</th><th class="num">점수</th><th class="num">captured</th><th class="num">stolen</th><th class="num">SLA</th></tr></thead>
+        <tbody id="scoreRows"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <span class="lbl">아티팩트<span class="r">라운드 종료 후 제공 · pcap / 에이전트 로그</span></span>
+    <div id="artifactList"></div>
+  </div>
+
+  <div class="grid g2">
+    <div class="card">
+      <span class="lbl">LLM</span>
+      <div class="stats">
+        <div class="stat"><div class="k">누적 비용</div><div class="v" id="llmUsed">—</div><div class="s">USD</div></div>
+        <div class="stat"><div class="k">Budget</div><div class="v" id="llmBudget">—</div><div class="s" id="llmLeft">—</div></div>
+      </div>
+      <div class="meta" style="margin-top:10px">
+        상한 도달 시 요청은 <code>budget-exceeded</code> 로 거부됩니다.
+      </div>
+    </div>
+
+    <div class="card">
+      <span class="lbl">제출 · 배포</span>
+      <div class="meta">Submit token <span class="secret" id="submitToken">—</span></div>
+      <div class="meta" style="margin-top:6px">Registry <code id="registryHost">—</code></div>
+      <pre class="cmd" id="pushCmd">—</pre>
+      <div class="meta" style="margin-top:8px; color:var(--faint)">
+        플랫폼을 지정하지 않은 빌드는 개발 PC 아키텍처로 생성됩니다.
+        실행 노드와 다르면 push 와 pull 이 모두 성공해도 반영되지 않습니다.
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <span class="lbl">이벤트</span>
+    <div class="events" id="events">—</div>
+  </div>
+
+</div>
+
+<script src="/static/app.js"></script>
+</body>
+</html>
