@@ -9,7 +9,7 @@ head-to-head 로 붙인다.
 | 저장소 | 소유 | 산출물 이미지 |
 |---|---|---|
 | `DAH-aexploit/defense-agent` | 방어 담당 | `team9-defender` |
-| `DAH-aexploit/rehearsal-attacker` | 공격 담당 | `team9-attacker` |
+| `DAH-aexploit/attack-agent` | 공격 담당 (빌드 컨텍스트 `agents/team1/attacker`) | `team9-attacker` |
 | **`DAH-aexploit/arena`** (이 저장소) | 공용 | 인프라·챌린지·채점·참가자 페이지 |
 
 에이전트는 **env 계약만** 지키면 arena 에 그대로 붙는다(하드코딩 없음).
@@ -19,7 +19,7 @@ head-to-head 로 붙인다.
 - 방어: broker 소켓 `AGENT_SOCKET`(PACKET/VERDICT/HEARTBEAT, 300ms)
   → `agents/passthrough-defender/defender.py` 가 최소 골격
 
-`rehearsal-attacker/attacker/` 는 이 계약을 이미 그대로 구현하므로 수정 없이 붙는다.
+`attack-agent`(`agents/team1/attacker`)는 이 계약을 이미 그대로 구현하므로 수정 없이 붙는다.
 
 ## 협업 방식: GHCR 이미지 공유 (기본, 다른 PC 간)
 
@@ -38,7 +38,7 @@ REMOTE_REGISTRY=ghcr.io/dah-aexploit
 #    방어 담당:
 make push-defender TEAM=9 CTX=../defense-agent
 #    공격 담당:
-make push-attacker TEAM=9 CTX=../rehearsal-attacker/attacker
+make push-attacker TEAM=9 CTX=../attack-agent/agents/team1/attacker
 
 # 3) arena 운영자(누구든 1명)가 스택 기동 — 라운드마다 최신 이미지를 pull
 make up
@@ -69,13 +69,13 @@ ghcr.io/dah-aexploit/team9-attacker:latest
 work/
   arena/            ← 이 저장소 (여기서 make 실행)
   defense-agent/
-  rehearsal-attacker/
+  attack-agent/
 ```
 
 ```bash
 # config/competition.yml 의 agent_sources 또는 환경변수로 경로 지정
 AGENT_SRC_MINE=../defense-agent \
-AGENT_SRC_MATE=../rehearsal-attacker/attacker \
+AGENT_SRC_MATE=../attack-agent/agents/team1/attacker \
 make up
 ```
 
@@ -84,10 +84,10 @@ make up
 arena 에 두 에이전트를 submodule 로 붙여 특정 커밋으로 재현 가능한 통합 실행.
 
 ```bash
-git submodule add git@github.com:DAH-aexploit/defense-agent      vendor/defense-agent
-git submodule add git@github.com:DAH-aexploit/rehearsal-attacker vendor/rehearsal-attacker
+git submodule add git@github.com:DAH-aexploit/defense-agent vendor/defense-agent
+git submodule add git@github.com:DAH-aexploit/attack-agent  vendor/attack-agent
 # config: agent_sources.mine=vendor/defense-agent
-#         agent_sources.mate=vendor/rehearsal-attacker/attacker
+#         agent_sources.mate=vendor/attack-agent/agents/team1/attacker
 ```
 
 ## 역할 배치(누가 무엇을 검증하나)
@@ -108,7 +108,7 @@ team2 의 attacker 를 `mate` 로 바꾸면 된다.
 - `make report` — head-to-head 요약(내 방어 / 팀원 공격 분리)
 - 참가자 페이지 — 실시간 스코어보드·verdict·SLA·이미지 반영 상태
 - 아티팩트 — 라운드별 pcap·에이전트 로그(파일명 `TEAM9-P2-R8-l1-*.pcap.gz`).
-  `rehearsal-attacker/tools/fetch_captures.py` 로 하베스트 가능(파일명 규칙 동일).
+  아티팩트 파일명은 리허설 규칙과 동일하므로 기존 하베스트 도구를 그대로 쓸 수 있다.
 
 ## 시크릿 원칙
 

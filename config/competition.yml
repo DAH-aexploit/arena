@@ -48,7 +48,7 @@ layers:
 # 각 팀의 defender/attacker 는 역할 이름이며 agent_sources 로 실제 코드가 정해진다.
 #   defender: mine        내 방어 에이전트(../defense-agent)
 #             passthrough  무방비 기준선(ACCEPT-all)
-#   attacker: mate        팀원 공격 에이전트(../attack-agent)
+#   attacker: mate        팀원 공격 에이전트(attack-agent)
 #             bot          내장 결정적 봇 공격
 #
 # 공격은 자기 팀의 모든 상대를 향한다. 이 배치가 만드는 매치업:
@@ -86,7 +86,7 @@ teams:
 #   팀원 공격 위치 지정:   AGENT_SRC_MATE=... 또는 아래 mate 값 수정
 agent_sources:
   mine: ../defense-agent
-  mate: ../attack-agent
+  mate: ../attack-agent/agents/team1/attacker
   passthrough: agents/passthrough-defender
   bot: agents/bot-attacker
 

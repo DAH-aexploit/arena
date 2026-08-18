@@ -42,8 +42,8 @@ POST {SUBMIT_URL}
 
 ```bash
 # 팀원 공격 코드 디렉토리(Dockerfile 포함)를 지정해 push
-make push-attacker CTX=/path/to/teammate-attacker TEAM=9            # 다음 라운드 반영
-make push-attacker CTX=/path/to/teammate-attacker TEAM=9 RELOAD=1   # 즉시 반영
+make push-attacker CTX=../attack-agent/agents/team1/attacker TEAM=9            # 다음 라운드 반영
+make push-attacker CTX=../attack-agent/agents/team1/attacker TEAM=9 RELOAD=1   # 즉시 반영
 
 # 또는 config/competition.yml 의 agent_sources.mate 경로를 바꾸고
 #   AGENT_SRC_MATE=/path/to/dir make seed

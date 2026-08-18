@@ -47,5 +47,5 @@ DAH 공방 에이전트 **head-to-head 테스트베드**. 실제 대회와 동�
 ```bash
 make up        # 기동  ·  make report  # head-to-head 요약
 make push-defender TEAM=9 CTX=../defense-agent RELOAD=1
-make push-attacker TEAM=9 CTX=../rehearsal-attacker/attacker RELOAD=1
+make push-attacker TEAM=9 CTX=../attack-agent/agents/team1/attacker RELOAD=1
 ```

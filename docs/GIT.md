@@ -65,12 +65,12 @@ git pull --rebase origin main
 ```bash
 # 로컬 모드(혼자, 같은 PC): make up 이 알아서 빌드·시드
 make push-defender TEAM=9 CTX=../defense-agent RELOAD=1
-make push-attacker TEAM=9 CTX=../rehearsal-attacker/attacker RELOAD=1
+make push-attacker TEAM=9 CTX=../attack-agent/agents/team1/attacker RELOAD=1
 
 # GHCR 모드(팀 협업): .env 에 REGISTRY_MODE=remote 후, 1회 로그인
 make ghcr-login GH_USER=<github-id> GH_PAT=<packages r/w PAT>
 make push-defender TEAM=9 CTX=../defense-agent      # ghcr.io/dah-aexploit/team9-defender
-make push-attacker TEAM=9 CTX=../rehearsal-attacker/attacker
+make push-attacker TEAM=9 CTX=../attack-agent/agents/team1/attacker
 ```
 
 자세한 협업 흐름은 [`COLLAB.md`](COLLAB.md).
