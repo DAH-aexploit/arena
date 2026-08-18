@@ -43,8 +43,8 @@ class Team:
     account: str
     participant: bool
     subnet_octet: int
-    defender_role: str = "passthrough"   # mine | passthrough | ...
-    attacker_role: str = "bot"           # mate | bot | ...
+    defender_role: str = "passthrough"   # defense | passthrough | ...
+    attacker_role: str = "bot"           # attack | bot | ...
     role_label: str = ""                 # 대시보드 표시용(예: "무방비 스파링")
 
     @property
@@ -106,7 +106,7 @@ class Config:
     def agent_source(self, role: str) -> str:
         """역할 이름 → 빌드 컨텍스트 디렉토리. 환경변수가 우선한다.
 
-        예: role='mine' → env AGENT_SRC_MINE 또는 agent_sources['mine'].
+        예: role='defense' → env AGENT_SRC_DEFENSE 또는 agent_sources['defense'].
         """
         env = os.environ.get(f"AGENT_SRC_{role.upper()}")
         if env:
@@ -200,8 +200,8 @@ def load(path: str = DEFAULT_PATH) -> Config:
     def _role_defaults(t: dict) -> tuple[str, str]:
         # 명시 role 이 없으면 participant 여부로 기본값 도출(하위 호환)
         part = bool(t.get("participant"))
-        dfd = str(t.get("defender") or ("mine" if part else "passthrough"))
-        atk = str(t.get("attacker") or ("mate" if part else "bot"))
+        dfd = str(t.get("defender") or ("defense" if part else "passthrough"))
+        atk = str(t.get("attacker") or ("attack" if part else "bot"))
         return dfd, atk
 
     teams = []
@@ -217,8 +217,8 @@ def load(path: str = DEFAULT_PATH) -> Config:
     agent_sources = dict(raw.get("agent_sources") or {})
     agent_sources.setdefault("passthrough", "agents/passthrough-defender")
     agent_sources.setdefault("bot", "agents/bot-attacker")
-    agent_sources.setdefault("mine", "../defense-agent")
-    agent_sources.setdefault("mate", "../attack-agent")
+    agent_sources.setdefault("defense", "../defense-agent")
+    agent_sources.setdefault("attack", "../attack-agent/agents/team1/attacker")
 
     return Config(
         competition_id=str(comp.get("id") or "local"),

@@ -1,21 +1,22 @@
 # DAH Arena (공방 에이전트 테스트베드)
 
 대회와 **같은 계약**(방어 broker · flag 제출 · LLM 게이트웨이 · SLA · 이미지 pull)
-위에서 **내 방어 에이전트와 팀원 공격 에이전트를 head-to-head로 검증**하는 공용
+위에서 **팀의 방어 에이전트와 공격 에이전트를 head-to-head로 검증**하는 공용
 테스트베드다. 챌린지는 리허설 스켈레톤(본선 무관)이다.
 
 ## 핵심
 
-3팀이 역할로 배치되어, 한 판에서 방어와 공격을 **동시에** 측정한다.
+방어·공격 에이전트를 **본진(team9)에 함께 배치**하고, 나머지 두 팀은 이 둘을
+측정하기 위한 스파링 상대다. 한 판에서 방어와 공격이 **동시에** 드러난다.
 
-| 팀 | 방어 | 공격 | 이 팀으로 알 수 있는 것 |
+| 팀 | 방어 | 공격 | 이 팀의 역할 |
 |---|---|---|---|
-| **team9 (나)** | 내 방어 | 팀원 공격 | 내 페이지에서 방어·공격 성적을 함께 |
-| team1 (무방비) | passthrough | 봇 | **팀원 공격의 순수 능력** (뚫는 실력) |
-| team2 (내 방어 미러) | 내 방어 복제 | 봇 | **팀원 공격이 내 방어를 뚫는지** |
+| **team9 (본진)** | 방어 | 공격 | 방어·공격 성적이 여기서 나온다 |
+| team1 (무방비 스파링) | passthrough | 봇 | **공격의 순수 능력** (뚫는 실력) |
+| team2 (방어 미러) | 방어 복제 | 봇 | **공격이 방어를 뚫는지** |
 
-- 내 방어는 team1·team2의 봇 공격을 받아 성능이 드러난다(team9의 stolen/drop/SLA).
-- 팀원 공격은 team1(무방비)·team2(내 방어)를 때려 순수 능력과 우회 여부가 갈린다.
+- **방어**는 team1·team2의 봇 공격을 받아 성능이 드러난다(team9의 stolen/drop/SLA).
+- **공격**은 team1(무방비)·team2(방어 미러)를 때려 순수 능력과 우회 여부가 갈린다.
 
 ## 시작
 
@@ -36,8 +37,8 @@ make creds              # 팀 토큰
 ```bash
 make push-defender TEAM=9 CTX=../defense-agent RELOAD=1
 ```
-- **본다**: `make report`의 *내 방어* — `stolen 없음` + `drop>0` + `SLA` 높음이면 성공.
-  team2(미러)가 뚫리면 우회가 존재한다는 뜻.
+- **본다**: `make report`의 *방어* — `stolen 없음` + `drop>0` + `SLA` 높음이면 성공.
+  team2(미러)가 뚫리면 공격이 찾은 우회가 존재한다는 뜻.
 - **판다**: `docker compose logs -f team9-defender` — 어떤 요청을 DROP/ACCEPT 하는지.
 
 ### 📐 룰 담당 — `signatures`
@@ -46,7 +47,7 @@ make push-defender TEAM=9 CTX=../defense-agent RELOAD=1
 ```bash
 make push-defender TEAM=9 CTX=../defense-agent RELOAD=1   # 갱신된 signatures 포함
 ```
-- **본다**: team9-defender 로그의 `rule_ids` 적중 — 내 룰이 실제로 잡는가.
+- **본다**: team9-defender 로그의 `rule_ids` 적중 — 룰이 실제로 잡는가.
 - **주의**: 참가자 페이지 **SLA** — 정상 트래픽까지 막으면 SLA가 급락한다(과탐).
 
 ### ⚔️ 공격 담당 — `attack-agent`
@@ -54,8 +55,8 @@ make push-defender TEAM=9 CTX=../defense-agent RELOAD=1   # 갱신된 signatures
 ```bash
 make push-attacker TEAM=9 CTX=../attack-agent/agents/team1/attacker RELOAD=1
 ```
-- **본다**: `make report`의 *팀원 공격* — team1(무방비) `captured`=순수 능력,
-  team2(내 방어) `captured`=우회 여부(0이면 막힘, >0이면 내 방어를 뚫음).
+- **본다**: `make report`의 *공격* — team1(무방비) `captured`=순수 능력,
+  team2(방어 미러) `captured`=우회 여부(0이면 방어에 막힘, >0이면 뚫음).
 - **판다**: `docker compose logs -f team9-attacker` — 어떤 익스플로잇·우회가 통했는지.
 
 ## 동작 (요약)

@@ -74,8 +74,8 @@ work/
 
 ```bash
 # config/competition.yml 의 agent_sources 또는 환경변수로 경로 지정
-AGENT_SRC_MINE=../defense-agent \
-AGENT_SRC_MATE=../attack-agent/agents/team1/attacker \
+AGENT_SRC_DEFENSE=../defense-agent \
+AGENT_SRC_ATTACK=../attack-agent/agents/team1/attacker \
 make up
 ```
 
@@ -86,8 +86,8 @@ arena 에 두 에이전트를 submodule 로 붙여 특정 커밋으로 재현 �
 ```bash
 git submodule add git@github.com:DAH-aexploit/defense-agent vendor/defense-agent
 git submodule add git@github.com:DAH-aexploit/attack-agent  vendor/attack-agent
-# config: agent_sources.mine=vendor/defense-agent
-#         agent_sources.mate=vendor/attack-agent/agents/team1/attacker
+# config: agent_sources.defense=vendor/defense-agent
+#         agent_sources.attack=vendor/attack-agent/agents/team1/attacker
 ```
 
 ## 역할 배치(누가 무엇을 검증하나)
@@ -96,16 +96,16 @@ git submodule add git@github.com:DAH-aexploit/attack-agent  vendor/attack-agent
 
 | 팀 | 방어 | 공격 | 검증 |
 |---|---|---|---|
-| team9 | 내 방어(mine) | 팀원 공격(mate) | 내 페이지에서 양쪽 동시 |
-| team1 | passthrough | bot | 팀원 공격의 순수 능력 |
-| team2 | 내 방어 미러(mine) | bot | 팀원 공격이 내 방어를 뚫는지 |
+| team9 (본진) | 방어(defense) | 공격(attack) | 방어·공격을 함께 |
+| team1 | passthrough | bot | 공격의 순수 능력 |
+| team2 | 방어 미러(defense) | bot | 공격이 방어를 뚫는지 |
 
-역할·소스는 config 에서 바꾼다. 예를 들어 "팀원 공격 vs 내 방어"만 집중하려면
-team2 의 attacker 를 `mate` 로 바꾸면 된다.
+역할·소스는 config 에서 바꾼다. 예를 들어 "공격 vs 방어"만 집중하려면
+team2 의 attacker 를 `attack` 으로 바꾸면 된다.
 
 ## 결과 공유
 
-- `make report` — head-to-head 요약(내 방어 / 팀원 공격 분리)
+- `make report` — head-to-head 요약(방어 / 공격 분리)
 - 참가자 페이지 — 실시간 스코어보드·verdict·SLA·이미지 반영 상태
 - 아티팩트 — 라운드별 pcap·에이전트 로그(파일명 `TEAM9-P2-R8-l1-*.pcap.gz`).
   아티팩트 파일명은 리허설 규칙과 동일하므로 기존 하베스트 도구를 그대로 쓸 수 있다.

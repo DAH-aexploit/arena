@@ -46,27 +46,28 @@ layers:
 
 # ── 테스트베드 팀 구성(head-to-head) ──────────────────────────
 # 각 팀의 defender/attacker 는 역할 이름이며 agent_sources 로 실제 코드가 정해진다.
-#   defender: mine        내 방어 에이전트(../defense-agent)
+#   defender: defense      팀 방어 에이전트(defense-agent)
 #             passthrough  무방비 기준선(ACCEPT-all)
-#   attacker: mate        팀원 공격 에이전트(attack-agent)
+#   attacker: attack       팀 공격 에이전트(attack-agent)
 #             bot          내장 결정적 봇 공격
 #
-# 공격은 자기 팀의 모든 상대를 향한다. 이 배치가 만드는 매치업:
-#   team9(mate 공격) → team1(무방비): 팀원 공격의 순수 익스플로잇 능력
-#   team9(mate 공격) → team2(내 방어 미러): 팀원 공격이 내 방어를 뚫는지
-#   team1·team2(봇 공격) → team9(내 방어): 내 방어가 공격을 막는지
+# 본진(team9)에 방어와 공격 에이전트를 함께 배치한다. 나머지 두 팀은 이 둘을
+# 측정하기 위한 스파링 상대다. 공격은 자기 팀의 모든 상대를 향한다:
+#   공격(본진) → team1(무방비): 공격의 순수 익스플로잇 능력
+#   공격(본진) → team2(방어 미러): 공격이 방어를 뚫는지
+#   봇 공격(team1·team2) → team9(방어): 방어가 공격을 막는지
 teams:
   - id: 9
-    name: me
-    role_label: 내 방어 + 팀원 공격
+    name: aexploit
+    role_label: 본진 (방어+공격)
     account: team9-dry
     participant: true
     subnet_octet: 9
-    defender: mine
-    attacker: mate
+    defender: defense
+    attacker: attack
   - id: 1
     name: spar-open
-    role_label: 무방비 스파링(팀원 공격 표적)
+    role_label: 무방비 스파링(공격 표적)
     account: team1-dry
     participant: false
     subnet_octet: 1
@@ -74,19 +75,19 @@ teams:
     attacker: bot
   - id: 2
     name: spar-mirror
-    role_label: 내 방어 미러(팀원 공격 표적)
+    role_label: 방어 미러(공격 표적)
     account: team2-dry
     participant: false
     subnet_octet: 2
-    defender: mine
+    defender: defense
     attacker: bot
 
 # 역할 → 빌드 컨텍스트. 환경변수 AGENT_SRC_<ROLE> 가 우선한다.
-#   내 방어 위치를 옮기면: AGENT_SRC_MINE=... 또는 아래 mine 값 수정
-#   팀원 공격 위치 지정:   AGENT_SRC_MATE=... 또는 아래 mate 값 수정
+#   방어 위치 지정: AGENT_SRC_DEFENSE=... 또는 아래 defense 값 수정
+#   공격 위치 지정: AGENT_SRC_ATTACK=...  또는 아래 attack 값 수정
 agent_sources:
-  mine: ../defense-agent
-  mate: ../attack-agent/agents/team1/attacker
+  defense: ../defense-agent
+  attack: ../attack-agent/agents/team1/attacker
   passthrough: agents/passthrough-defender
   bot: agents/bot-attacker
 

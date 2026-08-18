@@ -3,8 +3,8 @@
 
 참가자 페이지 API 를 읽어 두 가지를 나눠 보여준다.
 
-  내 방어(team9)   : 라운드별 stolen / drop / SLA — 공격을 막았는가
-  팀원 공격(team9) : 상대별 captured — 무방비/내 방어 미러를 뚫었는가
+  방어(team9) : 라운드별 stolen / drop / SLA — 공격을 막았는가
+  공격(team9) : 상대별 captured — 무방비/방어 미러를 뚫었는가
 
 역할 라벨(config.role_label)로 각 상대가 무엇을 검증하는 표적인지 표시한다.
 """
@@ -52,10 +52,10 @@ def main() -> None:
     s = d["status"]
     print(f"\n═══ DAH Arena 테스트베드 — {me.slug} ({me.name}) ═══")
     print(f"  진행: {s['state']} · {s['phase']} R{s['round']} · 완료 {s['rounds_done']}/{s['total_rounds']}")
-    print(f"  내 방어 = {me.defender_role} · 내 공격 = {me.attacker_role}\n")
+    print(f"  방어 = {me.defender_role} · 공격 = {me.attacker_role}\n")
 
-    # ── 내 방어 ──────────────────────────────────────────────────────────
-    print("─ 내 방어(team%d) 라운드별 ─────────────────────────" % me.id)
+    # ── 방어 ──────────────────────────────────────────────────────────────
+    print("─ 방어 (team%d 본진) 라운드별 ───────────────────────" % me.id)
     print("  %-16s %-10s %6s %8s  %s" % ("라운드", "stolen", "drop", "SLA", ""))
     rows = d.get("rounds", [])
     if not rows:
@@ -68,8 +68,8 @@ def main() -> None:
             r["tag"], (",".join("L%d" % x for x in stolen) or "없음"),
             r.get("drop", 0), sla * 100, bar(sla, 12), mark))
 
-    # ── 팀원 공격 ────────────────────────────────────────────────────────
-    print("\n─ 팀원 공격(team%d) 상대별 성과 ────────────────────" % me.id)
+    # ── 공격 ──────────────────────────────────────────────────────────────
+    print("\n─ 공격 (team%d 본진) 상대별 성과 ──────────────────" % me.id)
     caps = d.get("captures", [])
     by_victim: dict[int, dict] = {}
     for c in caps:
@@ -96,12 +96,12 @@ def main() -> None:
     print("\n─ 핵심 해석 ───────────────────────────────────────")
     if open_t:
         v = by_victim.get(open_t.id)
-        print("  · 팀원 공격 순수 능력(무방비 team%d): %s" % (
+        print("  · 공격 순수 능력(무방비 team%d): %s" % (
             open_t.id, "성공" if v else "미탈취 — 공격 에이전트 점검 필요"))
     if mirror:
         v = by_victim.get(mirror.id)
-        print("  · 팀원 공격 vs 내 방어(미러 team%d): %s" % (
-            mirror.id, "내 방어 우회함 ⚠" if v else "내 방어가 막음 ✓"))
+        print("  · 공격 vs 방어(미러 team%d): %s" % (
+            mirror.id, "방어 뚫림 ⚠" if v else "방어가 막음 ✓"))
     print()
 
 
