@@ -1,5 +1,5 @@
 FROM python:3.12-slim
-RUN pip install --no-cache-dir flask gunicorn gevent
+RUN pip install --no-cache-dir flask gunicorn gevent packaging
 COPY app.py /app.py
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
